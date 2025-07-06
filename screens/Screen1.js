@@ -1,11 +1,11 @@
-import React from 'react';
-import {View, StyleSheet, Image, TouchableOpacity, Text} from 'react-native';
+import React, {useState} from 'react';
+import {View, StyleSheet, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {removeUserData} from '../utils';
 import {colors} from '../theme/colors';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import {useSharedValue, withSpring} from 'react-native-reanimated';
-import Sound from 'react-native-sound';
+import {runOnJS, useSharedValue, withSpring} from 'react-native-reanimated';
+import SoundPlayer from 'react-native-sound-player';
 
 const Screen1 = () => {
   const navigation = useNavigation();
@@ -13,23 +13,23 @@ const Screen1 = () => {
   const rotation = useSharedValue(0);
   const isRotating = useSharedValue(false);
 
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const playSound = () => {
-    const sound = new Sound('single_tap.mp3', Sound.MAIN_BUNDLE, error => {
-      if (error) {
-        console.log('Failed to load the sound', error);
-        return;
+    try {
+      if (isPlaying) {
+        SoundPlayer.stopSound();
+        setIsPlaying(false);
+        SoundPlayer.playSoundFile('single_tap', 'mp3');
+        setIsPlaying(true);
+      } else {
+        SoundPlayer.playSoundFile('single_tap', 'mp3');
+        setIsPlaying(true);
       }
-      // Play the sound
-      sound.play(success => {
-        if (success) {
-          console.log('Sound played successfully');
-        } else {
-          console.log('Sound playback failed');
-        }
-        // Release the sound resource
-        sound.release();
-      });
-    });
+    } catch (e) {
+      console.log('Cannot play the sound file:', e);
+      setIsPlaying(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -39,12 +39,8 @@ const Screen1 = () => {
 
   const tapGesture = Gesture.Tap().onEnd(() => {
     console.log('Tapped once');
-    // runOnJS(playSound)();
+    runOnJS(playSound)();
   });
-
-  const handlePress = () => {
-    playSound();
-  };
 
   const rotationGesture = Gesture.Rotation()
     .onStart(() => {

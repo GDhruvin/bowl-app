@@ -1,9 +1,15 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import SoundPlayer from 'react-native-sound-player';
 
-const App = () => {
-
-  const playSound = () => {};
+const Screen2 = () => {
+  const playSound = async () => {
+    try {
+      SoundPlayer.playAsset(require('../assets/single_tap.mp3'));
+    } catch (e) {
+      console.log(`cannot play the sound file`, e);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -37,4 +43,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Screen2;
